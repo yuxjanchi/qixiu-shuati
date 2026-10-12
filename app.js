@@ -742,7 +742,7 @@ function renderHome(){
   const chapGroups = MODULES.map(m => { const chs = MOD_CHAPTERS[m]||{}; return `<div class="chap-group"><div class="chap-group-title">${esc(m)}</div><div class="chips">${Object.keys(chs).map(c=>`<button class="chip${f.chapters.includes(c)?" on":""}" data-chapter="${esc(c)}" onclick="toggleFilterChapter('${esc(c)}')">${esc(c)}（${chs[c]}题）</button>`).join("")}</div></div>`; }).join("");
   document.getElementById("view").innerHTML = `
     <div class="hero">
-      <div class="h-title">汽修刷题系统</div>
+      <div class="h-title">匠考通关宝</div>
       <div class="h-sub">湖北省技能高考 · 汽车维修类 · 8231 题题库</div>
       <div class="h-stats">
         <div class="h-stat"><div class="h-num">${st.answered}<small> / 8231</small></div><div class="h-label">已作答</div></div>
