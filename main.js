@@ -504,6 +504,17 @@ function loadExams(){ try{ return JSON.parse(localStorage.getItem(EXAM_KEY))||[]
 function saveExams(){ try{ localStorage.setItem(EXAM_KEY, JSON.stringify(examHist)); }catch(e){} }
 function addExam(rec){ examHist.unshift(rec); if(examHist.length>20) examHist.length=20; saveExams(); }
 
+/* 每周一练记录 */
+const WEEK_KEY = "qc_week_v1";
+function weekId(){ const d=new Date(); const start=new Date(d.getFullYear(),0,1); const wk=Math.ceil((((d-start)/86400000)+start.getDay()+1)/7); return d.getFullYear()+"-W"+String(wk).padStart(2,"0"); }
+function loadWeek(){ try{ return JSON.parse(localStorage.getItem(WEEK_KEY))||{}; }catch(e){ return {}; } }
+let weekRec = loadWeek();
+function saveWeek(){ try{ localStorage.setItem(WEEK_KEY, JSON.stringify(weekRec)); }catch(e){} }
+function weekStatusText(){
+  if(weekRec && weekRec.week === weekId()) return "本周已练 "+weekRec.rate+" 分";
+  return "本周未练 · 精选20题";
+}
+
 /* 夜间模式 */
 function initTheme(){
   const saved = localStorage.getItem(THEME_KEY);
@@ -542,7 +553,27 @@ function startExam(){
   const single = shuffle(pool.filter(q=>q.type==="single")).slice(0,50);
   const ids = shuffle(judge.concat(single)).map(q=>q.id);
   if(ids.length < 10){ toast("当前筛选下题目太少，请扩大筛选范围"); return; }
-  session = { mode:"exam", ids, idx:0, answers:{}, verdicts:{}, timeLeft: 45*60, submitted:false };
+  session = { mode:"exam", ids, idx:0, answers:{}, verdicts:{}, timeLeft: 45*60, timeMax:45*60, submitted:false };
+  location.hash = "#/quiz";
+}
+function startLinkao(){
+  const f = filterState();
+  const pool = QUESTIONS.filter(q=>matchFilter(q,f));
+  const judge = shuffle(pool.filter(q=>q.type==="judge")).slice(0,40);
+  const single = shuffle(pool.filter(q=>q.type==="single")).slice(0,60);
+  const ids = shuffle(judge.concat(single)).map(q=>q.id);
+  if(ids.length < 10){ toast("当前筛选下题目太少，请扩大筛选范围"); return; }
+  session = { mode:"linkao", ids, idx:0, answers:{}, verdicts:{}, timeLeft: 90*60, timeMax:90*60, submitted:false };
+  location.hash = "#/quiz";
+}
+function startWeekly(){
+  const f = filterState();
+  const pool = QUESTIONS.filter(q=>matchFilter(q,f));
+  const single = shuffle(pool.filter(q=>q.type==="single")).slice(0,10);
+  const judge = shuffle(pool.filter(q=>q.type==="judge")).slice(0,10);
+  const ids = shuffle(single.concat(judge)).map(q=>q.id);
+  if(ids.length < 5){ toast("当前筛选下题目太少，请扩大筛选范围"); return; }
+  session = { mode:"weekly", ids, idx:0, answers:{}, verdicts:{}, timeLeft: 60*60, timeMax:60*60, submitted:false };
   location.hash = "#/quiz";
 }
 let examTimer = null;
@@ -625,7 +656,7 @@ function submitExam(){
   session.submitted = true;
   stopExamTimer();
   const total = session.ids.length;
-  const used = 45*60 - (session.timeLeft||0);
+  const used = (session.timeMax||45*60) - (session.timeLeft||0);
   const detail = session.ids.map(id=>{
     const q = QUESTIONS.find(x=>x.id===id);
     const sel = session.answers[id];
@@ -641,12 +672,18 @@ function submitExam(){
   saveProgress();
   const okN = detail.filter(d=>d.right).length;
   const rate = Math.round(okN/total*100);
-  addExam({time:new Date().toLocaleString("zh-CN",{hour12:false}), total, okN, rate, used});
+  const kindMap = {exam:"模拟考试", linkao:"全省联考", weekly:"每周一练"};
+  const kindName = kindMap[session.mode]||"模拟考试";
+  addExam({time:new Date().toLocaleString("zh-CN",{hour12:false}), total, okN, rate, used, kind:kindName});
+  if(session.mode === "weekly"){
+    weekRec = {week: weekId(), rate, okN, total, time:new Date().toLocaleString("zh-CN",{hour12:false})};
+    saveWeek();
+  }
   const wrongList = detail.filter(d=>!d.right);
   document.getElementById("view").innerHTML = `
     <div class="done-hero">
       <div class="score">${rate}<small> 分</small></div>
-      <p style="color:var(--muted);margin-top:6px">模拟考试完成 · 用时 ${fmtTime(used)}</p>
+      <p style="color:var(--muted);margin-top:6px">${kindName}完成 · 用时 ${fmtTime(used)}</p>
     </div>
     <div class="done-stats">
       <div class="done-stat"><div class="d-num">${total}</div><div class="d-label">总题数</div></div>
@@ -805,6 +842,14 @@ function renderHome(){
         <button class="quick-btn" onclick="startExam()">
           <span class="qk-name" style="color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>模拟考试</span>
           <span class="qk-sub">45分钟组卷</span>
+        </button>
+        <button class="quick-btn" onclick="startLinkao()">
+          <span class="qk-name" style="color:var(--m2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10M10 21V7M15 21V4M20 21V9"/></svg>全省联考</span>
+          <span class="qk-sub">90分钟 · 100题</span>
+        </button>
+        <button class="quick-btn" onclick="startWeekly()">
+          <span class="qk-name" style="color:var(--m3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18M12 12l1.4 1.4L16 10.8"/></svg>每周一练</span>
+          <span class="qk-sub">${weekStatusText()}</span>
         </button>
       </div>
     </div>
@@ -979,13 +1024,13 @@ function goExams(){ location.hash = "#/exams"; }
 function renderExams(){
   document.getElementById("view").innerHTML = `
     <h1 class="view-title">考试记录</h1>
-    <p class="view-desc">共 ${examHist.length} 次模拟考试记录（最近 20 次）。</p>
+    <p class="view-desc">共 ${examHist.length} 次考试记录（最近 20 次）。</p>
     ${examHist.length?`<button class="btn btn-ghost" style="margin-bottom:14px" onclick="clearHistory()">清空全部记录</button>`:""}
     ${examHist.length?`<div class="hist-list">${examHist.map(h=>`
       <div class="hist-item">
         <div class="hist-score">${h.rate}<small> 分</small></div>
         <div class="hist-info">
-          <div class="hist-meta">${h.total} 题 · 答对 ${h.okN} · 用时 ${fmtTime(h.used||0)}</div>
+          <div class="hist-meta">${h.kind?`<span class="tag module">${esc(h.kind)}</span>`:""} ${h.total} 题 · 答对 ${h.okN} · 用时 ${fmtTime(h.used||0)}</div>
           <div class="hist-time">${esc(h.time)}</div>
         </div>
         <div class="hist-rate">${h.rate}%</div>
