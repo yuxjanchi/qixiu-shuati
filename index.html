@@ -566,6 +566,16 @@ body.dark{
 .picker-foot{position:fixed;left:0;right:0;bottom:0;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(10,16,30,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid rgba(94,234,212,.16)}
 .picker-foot .btn{flex:1}
 
+
+/* ===== 出题表单 ===== */
+.form-row{margin-bottom:12px}
+.form-row label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.form-row input,.form-row textarea,.form-row select{width:100%;padding:11px 12px;border-radius:10px;background:rgba(16,28,50,.72);border:1px solid rgba(94,234,212,.18);color:var(--ink);font-size:15px;box-sizing:border-box;outline:none}
+.form-row input:focus,.form-row textarea:focus{border-color:var(--primary)}
+.form-row textarea{resize:vertical;min-height:60px;line-height:1.5}
+.form-row select{background:rgba(16,28,50,.72)}
+#mq-answer-single,#mq-answer-judge{flex-wrap:wrap}
+
 </style>
 </head>
 <body>

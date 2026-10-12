@@ -17,7 +17,7 @@ let progress = loadProgress();
 function saveProgress(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(progress)); }catch(e){} }
 
 function stats(){
-  const ids = Object.keys(progress).map(Number);
+  const ids = Object.keys(progress).map(Number).filter(n=>Number.isFinite(n));
   let okCount = 0, totalTry = 0;
   ids.forEach(id => { const p = progress[id]; okCount += p.c || 0; totalTry += p.n || 0; });
   const rate = totalTry ? Math.round(okCount / totalTry * 100) : 0;
@@ -217,7 +217,7 @@ function exitQuiz(){ session = null; location.hash = "#/home"; }
 function renderQuiz(){
   if(!session || !session.ids.length){ location.hash="#/home"; return; }
   if(session.mode === "exam"){ renderExamQ(); return; }
-  const q = QUESTIONS.find(x=>x.id === session.ids[session.idx]);
+  const q = findQ(session.ids[session.idx]);
   const cur = session.idx + 1, total = session.ids.length;
   const answered = Object.keys(session.answers).length;
   const pct = Math.round(answered/total*100);
@@ -379,7 +379,7 @@ function record(id, selection, correct){
   saveProgress();
   renderQuiz();
 }
-function curQ(){ return QUESTIONS.find(x=>x.id === session.ids[session.idx]); }
+function curQ(){ return findQ(session.ids[session.idx]); }
 
 /* ---------- 导航 ---------- */
 function prevQ(){ if(session.idx>0){ session.idx--; renderQuiz(); } }
@@ -515,6 +515,114 @@ function weekStatusText(){
   return "本周未练 · 精选20题";
 }
 
+/* 用户自出题（每周一练） */
+const MYQ_KEY = "qc_myq_v1";
+function loadMyQuestions(){ try{ return JSON.parse(localStorage.getItem(MYQ_KEY))||[]; }catch(e){ return []; } }
+let myQuestions = loadMyQuestions();
+function saveMyQuestions(){ try{ localStorage.setItem(MYQ_KEY, JSON.stringify(myQuestions)); }catch(e){} }
+let myQSeq = myQuestions.reduce((mx,q)=>{ const nm=parseInt(String(q.id).replace(/\D/g,"")); return isNaN(nm)?mx:Math.max(mx,nm); },0);
+function findQ(id){
+  const q = QUESTIONS.find(x=>x.id===id);
+  if(q) return q;
+  return myQuestions.find(x=>String(x.id)===String(id));
+}
+function renderMyQuestions(){
+  document.getElementById("view").innerHTML = `
+    <h1 class="view-title">每周一练 · 出题管理</h1>
+    <p class="view-desc">你出题后，每周一练将优先使用你的题目。已出 ${myQuestions.length} 题。</p>
+    ${myQuestions.length?`<button class="btn btn-ghost" style="margin-bottom:14px" onclick="clearMyQuestions()">清空全部题目</button>`:""}
+    <div class="hist-list">${myQuestions.length? myQuestions.map((q,i)=>`
+      <div class="hist-item">
+        <div style="flex:1">
+          <div class="hist-meta"><span class="tag type-${q.type}">${TYPE_META[q.type]}</span> ${esc(q.q.length>34?q.q.slice(0,34)+"…":q.q)}</div>
+          <div class="hist-time">答案：${esc(q.a)}${q.e?(" · "+esc(q.e.length>22?q.e.slice(0,22)+"…":q.e)):""}</div>
+        </div>
+        <button class="btn btn-ghost" style="flex:0 0 auto;padding:8px 12px" onclick="delMyQuestion('${q.id}')">删除</button>
+      </div>`).join("") : `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><div>还没有出题，点击下方"添加题目"录入本周题目</div></div>`}
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="showMyQForm()">添加题目</button>
+      <button class="btn btn-ghost" onclick="location.hash='#/home'">返回首页</button>
+    </div>`;
+}
+function showMyQForm(){
+  document.getElementById("view").innerHTML = `
+    <h1 class="view-title">添加题目</h1>
+    <p class="view-desc">保存后立即生效，每周一练将优先使用你出的题。</p>
+    <div class="card">
+      <div class="form-row"><label>题型</label>
+        <select id="mq-type" onchange="mqTypeChange()"><option value="single">单选题</option><option value="judge">判断题</option></select>
+      </div>
+      <div class="form-row"><label>题干 *</label><textarea id="mq-q" rows="3" placeholder="请输入题目内容"></textarea></div>
+      <div id="mq-opts">
+        <div class="form-row"><label>选项 A</label><input id="mq-o0" placeholder="选项 A 内容"></div>
+        <div class="form-row"><label>选项 B</label><input id="mq-o1" placeholder="选项 B 内容"></div>
+        <div class="form-row"><label>选项 C</label><input id="mq-o2" placeholder="选项 C 内容"></div>
+        <div class="form-row"><label>选项 D</label><input id="mq-o3" placeholder="选项 D 内容"></div>
+      </div>
+      <div class="form-row"><label>正确答案 *</label>
+        <div id="mq-answer-single" style="display:flex;gap:10px">
+          <button class="chip" data-ans="A" onclick="mqPickAns('A')">A</button>
+          <button class="chip" data-ans="B" onclick="mqPickAns('B')">B</button>
+          <button class="chip" data-ans="C" onclick="mqPickAns('C')">C</button>
+          <button class="chip" data-ans="D" onclick="mqPickAns('D')">D</button>
+        </div>
+        <div id="mq-answer-judge" style="display:none;gap:10px">
+          <button class="chip" data-ans="√" onclick="mqPickAns('√')">√ 正确</button>
+          <button class="chip" data-ans="×" onclick="mqPickAns('×')">× 错误</button>
+        </div>
+      </div>
+      <div class="form-row"><label>解析（可选，学生可看）</label><textarea id="mq-e" rows="2" placeholder="讲解要点 / 记忆口诀"></textarea></div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-primary" onclick="saveMyQuestion()">保存题目</button>
+        <button class="btn btn-ghost" onclick="renderMyQuestions()">取消</button>
+      </div>
+    </div>`;
+  mqTypeChange();
+}
+let mqAns = "";
+function mqTypeChange(){
+  const t = document.getElementById("mq-type").value;
+  document.getElementById("mq-opts").style.display = (t==="single")?"":"none";
+  document.getElementById("mq-answer-single").style.display = (t==="single")?"flex":"none";
+  document.getElementById("mq-answer-judge").style.display = (t==="judge")?"flex":"none";
+  mqAns = "";
+}
+function mqPickAns(a){
+  mqAns = a;
+  document.querySelectorAll("#mq-answer-single .chip,#mq-answer-judge .chip").forEach(c=>c.classList.toggle("on", c.dataset.ans===a));
+}
+function saveMyQuestion(){
+  const t = document.getElementById("mq-type").value;
+  const q = document.getElementById("mq-q").value.trim();
+  if(!q){ toast("请填写题干"); return; }
+  let opts = [], a = mqAns;
+  if(t === "single"){
+    opts = ["mq-o0","mq-o1","mq-o2","mq-o3"].map(id=>document.getElementById(id).value.trim()).filter(v=>v);
+    if(opts.length < 2){ toast("至少填写两个选项"); return; }
+    const letters = ["A","B","C","D"];
+    opts = opts.map((v,i)=>[letters[i],v]);
+    if(!a || a.charCodeAt(0)-65 >= opts.length){ toast("请选择正确的选项字母"); return; }
+  } else {
+    if(!a){ toast("请选择正确/错误"); return; }
+  }
+  myQSeq++;
+  myQuestions.push({id:"u"+myQSeq, type:t, module:"每周一练·用户出题", chapter:"每周一练", q, opts, a, e:document.getElementById("mq-e").value.trim()||""});
+  saveMyQuestions();
+  toast("题目已保存");
+  renderMyQuestions();
+}
+function delMyQuestion(id){
+  myQuestions = myQuestions.filter(x=>String(x.id)!==String(id));
+  saveMyQuestions();
+  renderMyQuestions();
+}
+function clearMyQuestions(){
+  myQuestions = [];
+  saveMyQuestions();
+  renderMyQuestions();
+}
+
 /* 夜间模式 */
 function initTheme(){
   const saved = localStorage.getItem(THEME_KEY);
@@ -563,16 +671,22 @@ function startLinkao(){
   const single = shuffle(pool.filter(q=>q.type==="single")).slice(0,60);
   const ids = shuffle(judge.concat(single)).map(q=>q.id);
   if(ids.length < 10){ toast("当前筛选下题目太少，请扩大筛选范围"); return; }
-  session = { mode:"linkao", ids, idx:0, answers:{}, verdicts:{}, timeLeft: 90*60, timeMax:90*60, submitted:false };
+  session = { mode:"linkao", ids, idx:0, answers:{}, verdicts:{}, timeLeft: 60*60, timeMax:60*60, submitted:false };
   location.hash = "#/quiz";
 }
 function startWeekly(){
   const f = filterState();
-  const pool = QUESTIONS.filter(q=>matchFilter(q,f));
-  const single = shuffle(pool.filter(q=>q.type==="single")).slice(0,10);
-  const judge = shuffle(pool.filter(q=>q.type==="judge")).slice(0,10);
-  const ids = shuffle(single.concat(judge)).map(q=>q.id);
-  if(ids.length < 5){ toast("当前筛选下题目太少，请扩大筛选范围"); return; }
+  let ids;
+  if(myQuestions.length){
+    ids = myQuestions.map(q=>q.id);
+    if(ids.length > 20) ids = shuffle(ids).slice(0,20);
+  } else {
+    const pool = QUESTIONS.filter(q=>matchFilter(q,f));
+    const single = shuffle(pool.filter(q=>q.type==="single")).slice(0,10);
+    const judge = shuffle(pool.filter(q=>q.type==="judge")).slice(0,10);
+    ids = shuffle(single.concat(judge)).map(q=>q.id);
+    if(ids.length < 5){ toast("当前筛选下题目太少，请扩大筛选范围"); return; }
+  }
   session = { mode:"weekly", ids, idx:0, answers:{}, verdicts:{}, timeLeft: 60*60, timeMax:60*60, submitted:false };
   location.hash = "#/quiz";
 }
@@ -658,7 +772,7 @@ function submitExam(){
   const total = session.ids.length;
   const used = (session.timeMax||45*60) - (session.timeLeft||0);
   const detail = session.ids.map(id=>{
-    const q = QUESTIONS.find(x=>x.id===id);
+    const q = findQ(id);
     const sel = session.answers[id];
     let right = false;
     if(q.type === "judge") right = (q.a === sel);
@@ -845,12 +959,15 @@ function renderHome(){
         </button>
         <button class="quick-btn" onclick="startLinkao()">
           <span class="qk-name" style="color:var(--m2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10M10 21V7M15 21V4M20 21V9"/></svg>全省联考</span>
-          <span class="qk-sub">90分钟 · 100题</span>
+          <span class="qk-sub">60分钟 · 100题</span>
         </button>
         <button class="quick-btn" onclick="startWeekly()">
           <span class="qk-name" style="color:var(--m3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18M12 12l1.4 1.4L16 10.8"/></svg>每周一练</span>
           <span class="qk-sub">${weekStatusText()}</span>
         </button>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button class="btn btn-ghost" style="flex:1;padding:11px" onclick="renderMyQuestions()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>每周一练 · 出题管理（${myQuestions.length} 题）</button>
       </div>
     </div>
 
