@@ -1,4 +1,10 @@
 const QUESTIONS=[].concat(window.__P1||[],window.__P2||[],window.__P3||[],window.__P4||[],window.__P5||[]);
+const _miss=[1,2,3,4,5].filter(function(n){return !(window["__P"+n]&&window["__P"+n].length);});
+if(_miss.length){
+  var _boot=document.getElementById("boot");
+  if(_boot){_boot.innerHTML='<div style="text-align:center;color:#3E4C5C;font-size:15px;line-height:1.8">题库加载异常（缺少模块 '+_miss.join(",")+'）<br>请点击下方按钮重新加载</div><button onclick="location.reload()" style="margin-top:12px;padding:10px 28px;border:none;border-radius:24px;background:#0B5FA5;color:#fff;font-size:15px">重新加载</button>';}
+  throw new Error("题库加载不完整: "+_miss.join(","));
+}
 try{document.getElementById("boot")&&document.getElementById("boot").remove();}catch(e){}
 
 
