@@ -974,6 +974,56 @@ function renderExams(){
       </div>`).join("")}</div>`:`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><div>暂无考试记录，来一场模拟考试吧</div></div>`}
     <div style="margin-top:16px"><button class="btn btn-primary" onclick="startExam()">开始模拟考试</button></div>`;
 }
+
+/* ===== 动态雨丝 ===== */
+(function(){
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var cv=document.createElement('canvas');
+  cv.id='rain';cv.setAttribute('aria-hidden','true');
+  document.body.appendChild(cv);
+  var ctx=cv.getContext('2d');
+  var W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
+  function resize(){W=window.innerWidth;H=window.innerHeight;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}
+  window.addEventListener('resize',resize);
+  resize();
+  var LAYERS=[
+    {s:10,l:16,w:1,a:.22,sl:10},
+    {s:15,l:24,w:1.2,a:.30,sl:8},
+    {s:21,l:36,w:1.5,a:.40,sl:6}
+  ];
+  var total=Math.min(240,Math.round(W*H/6500));
+  var per=Math.max(20,Math.round(total/3));
+  function make(L){
+    return {x:Math.random()*W,y:Math.random()*H,s:L.s*(0.8+Math.random()*0.5),l:L.l*(0.8+Math.random()*0.6),w:L.w,a:L.a*(0.55+Math.random()*0.6)};
+  }
+  LAYERS.forEach(function(L){L.drops=[];for(var i=0;i<per;i++)L.drops.push(make(L));});
+  var wind=0.7,target=0.7;
+  setInterval(function(){target=-0.9+Math.random()*1.8;},6000);
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    wind+=(target-wind)*0.02;
+    LAYERS.forEach(function(L){
+      ctx.strokeStyle='#BFD9F5';
+      for(var i=0;i<L.drops.length;i++){
+        var d=L.drops[i];
+        ctx.globalAlpha=d.a;ctx.lineWidth=d.w;
+        ctx.beginPath();
+        ctx.moveTo(d.x,d.y);
+        ctx.lineTo(d.x+wind*d.s*0.7,d.y+d.l);
+        ctx.stroke();
+        d.y+=d.s;d.x+=wind*d.s*0.55;
+        if(d.y>H+24){d.y=-24-Math.random()*60;d.x=Math.random()*W;}
+        if(d.x>W+16)d.x=-16;else if(d.x<-16)d.x=W+16;
+      }
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(tick);
+  }
+  tick();
+  document.addEventListener('visibilitychange',function(){cv.style.display=document.hidden?'none':'';});
+})();
+
+
 /* ---------- 初始化 ---------- */
 (function(){
   function boot(){
