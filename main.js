@@ -987,9 +987,9 @@ function renderExams(){
   window.addEventListener('resize',resize);
   resize();
   var LAYERS=[
-    {s:10,l:16,w:1,a:.22,sl:10},
-    {s:15,l:24,w:1.2,a:.30,sl:8},
-    {s:21,l:36,w:1.5,a:.40,sl:6}
+    {s:10,l:16,w:1,a:.16,sl:10,color:'rgba(94,234,212,.9)'},
+    {s:15,l:24,w:1.2,a:.22,sl:8,color:'rgba(129,140,248,.9)'},
+    {s:21,l:36,w:1.5,a:.28,sl:6,color:'rgba(240,171,218,.9)'}
   ];
   var total=Math.min(240,Math.round(W*H/6500));
   var per=Math.max(20,Math.round(total/3));
@@ -1003,7 +1003,7 @@ function renderExams(){
     ctx.clearRect(0,0,W,H);
     wind+=(target-wind)*0.02;
     LAYERS.forEach(function(L){
-      ctx.strokeStyle='#BFD9F5';
+      ctx.strokeStyle=L.color;
       for(var i=0;i<L.drops.length;i++){
         var d=L.drops[i];
         ctx.globalAlpha=d.a;ctx.lineWidth=d.w;
