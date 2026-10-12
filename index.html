@@ -7,79 +7,120 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F4C81'/%3E%3Cpath d='M18 38l6-16h16l6 16-14 10z' fill='%23E8EEF4'/%3E%3Ccircle cx='32' cy='32' r='6' fill='%230F4C81'/%3E%3C/svg%3E">
 <style>
 :root{
-  --bg:#EEF1F4; --surface:#FFFFFF; --ink:#17233B; --body:#3A4657;
-  --primary:#0F4C81; --primary-soft:#E3ECF5; --accent:#E8833A;
-  --ok:#1E7E34; --ok-soft:#E4F3E8; --bad:#C0392B; --bad-soft:#FBEAE8;
-  --muted:#7A8699; --line:#DDE3EA;
-  --m1:#5B7FA6; --m2:#C9764B; --m3:#4E8D7C; --m4:#7A6FA6; --m5:#A68B4E;
-  --radius:12px; --shadow:0 1px 2px rgba(23,35,59,.06), 0 4px 14px rgba(23,35,59,.06);
+  --bg:#EEF2F7; --surface:#FFFFFF; --ink:#12202F; --body:#3E4C5C;
+  --primary:#0B5FA5; --primary-2:#0F8BFF; --primary-soft:#E4F0FB;
+  --accent:#F47A1E; --accent-soft:#FEF0E2;
+  --ok:#16A34A; --ok-soft:#E7F6EC; --bad:#DC2626; --bad-soft:#FDEBEA;
+  --muted:#8A94A6; --line:#E4E9F0;
+  --m1:#3B82C4; --m2:#D9763B; --m3:#2F9E8F; --m4:#7A6FA6; --m5:#A68B4E;
+  --radius:14px; --radius-sm:10px;
+  --shadow:0 1px 2px rgba(18,32,47,.05), 0 6px 20px rgba(18,32,47,.06);
+  --shadow-lg:0 4px 10px rgba(18,32,47,.08), 0 16px 40px rgba(18,32,47,.10);
+}
+body.dark{
+  --bg:#0F1620; --surface:#182230; --ink:#E8EDF4; --body:#B7C2D1; --line:#273547;
+  --primary:#5BA3EC; --primary-2:#7FC0FF; --primary-soft:#1C3A55;
+  --accent:#F79A4E; --accent-soft:#3A2A18;
+  --ok:#4ADE80; --ok-soft:#12331F; --bad:#F87171; --bad-soft:#3A1B1B;
+  --muted:#7C8AA0;
+  --m1:#6FA9E0; --m2:#E8975F; --m3:#5FBFB0; --m4:#A89BDF; --m5:#C9B06E;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 6px 20px rgba(0,0,0,.30);
+  --shadow-lg:0 4px 10px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.45);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
-body{font-family:"Noto Sans SC","Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--body);line-height:1.6;font-size:16px}
+body{font-family:"Noto Sans SC","Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif;background:linear-gradient(180deg,var(--bg) 0%,#E7EDF5 100%);color:var(--body);line-height:1.6;font-size:16px;transition:background .25s,color .25s}
+body.dark{background:linear-gradient(180deg,#0F1620 0%,#131C28 100%)}
 button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 a{color:inherit;text-decoration:none}
 .hidden{display:none!important}
 
 /* 布局 */
 .app{min-height:100vh;display:flex;flex-direction:column}
-.topbar{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+body.dark .topbar{background:rgba(24,34,48,.86)}
 .topbar-inner{max-width:1000px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
-.brand-mark{width:36px;height:36px;flex:0 0 36px;border-radius:9px;background:var(--primary);display:flex;align-items:center;justify-content:center}
-.brand-name{font-size:17px;font-weight:700;color:var(--ink);white-space:nowrap}
+.brand-mark{width:36px;height:36px;flex:0 0 36px;border-radius:10px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-2) 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(11,95,165,.35)}
+.brand-name{font-size:17px;font-weight:800;color:var(--ink);white-space:nowrap;letter-spacing:.3px}
 .brand-sub{font-size:11px;color:var(--muted);white-space:nowrap}
-.top-nav{margin-left:auto;display:flex;gap:4px}
-.nav-btn{padding:8px 12px;border-radius:8px;font-size:14px;color:var(--body);display:flex;align-items:center;gap:6px;min-height:40px}
-.nav-btn.active{background:var(--primary-soft);color:var(--primary);font-weight:600}
+.top-nav{margin-left:auto;display:flex;gap:4px;align-items:center}
+.nav-btn{padding:8px 12px;border-radius:9px;font-size:14px;color:var(--body);display:flex;align-items:center;gap:6px;min-height:40px;transition:background .15s,color .15s}
+.nav-btn:hover{background:var(--primary-soft)}
+.nav-btn.active{background:var(--primary-soft);color:var(--primary);font-weight:700}
 .nav-btn svg{width:18px;height:18px;flex:0 0 18px}
+.theme-btn{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--body);flex:0 0 40px;transition:background .15s}
+.theme-btn:hover{background:var(--primary-soft)}
+.theme-btn svg{width:19px;height:19px}
 @media (max-width:640px){
   .brand-sub{display:none}
   .nav-btn span{display:none}
-  .nav-btn{width:48px;justify-content:center}
+  .nav-btn{width:46px;justify-content:center}
+  .theme-btn{width:38px;flex-basis:38px}
 }
 
 main{flex:1;width:100%;max-width:1000px;margin:0 auto;padding:20px 16px 96px}
-.view-title{font-size:22px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.view-title{font-size:23px;font-weight:800;color:var(--ink);margin-bottom:4px;letter-spacing:.3px}
 .view-desc{color:var(--muted);font-size:14px;margin-bottom:18px}
 
+/* Hero 统计 */
+.hero{background:linear-gradient(135deg,var(--primary) 0%,#0E7BC8 55%,var(--primary-2) 100%);border-radius:var(--radius);padding:22px 20px;color:#fff;margin-bottom:16px;box-shadow:0 10px 30px rgba(11,95,165,.25);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero::before{content:"";position:absolute;right:60px;bottom:-60px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.06)}
+.hero .h-title{font-size:19px;font-weight:800;margin-bottom:2px}
+.hero .h-sub{font-size:13px;opacity:.85;margin-bottom:16px}
+.hero .h-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;position:relative;z-index:1}
+@media (max-width:520px){.hero .h-stats{grid-template-columns:repeat(2,1fr)}}
+.hero .h-stat{padding:10px 12px;background:rgba(255,255,255,.14);border-radius:10px;backdrop-filter:blur(4px)}
+.hero .h-num{font-size:24px;font-weight:800;line-height:1.15}
+.hero .h-num small{font-size:12px;font-weight:600;opacity:.85}
+.hero .h-label{font-size:11.5px;opacity:.9;margin-top:2px}
+
 /* 卡片与统计 */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;transition:box-shadow .2s}
 .card + .card{margin-top:14px}
+.card-hover:hover{box-shadow:var(--shadow-lg)}
 .stat-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
 @media (min-width:768px){.stat-row{grid-template-columns:repeat(4,1fr)}}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px}
-.stat-num{font-size:26px;font-weight:700;color:var(--ink);line-height:1.2}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;transition:transform .15s,box-shadow .15s}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.stat-num{font-size:26px;font-weight:800;color:var(--ink);line-height:1.2}
 .stat-num small{font-size:13px;font-weight:400;color:var(--muted)}
 .stat-label{font-size:13px;color:var(--muted);margin-top:2px}
 .stat.ok .stat-num{color:var(--ok)}
 .stat.bad .stat-num{color:var(--bad)}
+.stat.fav .stat-num{color:var(--accent)}
 
 /* 筛选器 */
 .filter-block{margin-bottom:10px}
-.filter-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.filter-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.filter-title svg{width:15px;height:15px;color:var(--primary)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;color:var(--body);min-height:38px;display:inline-flex;align-items:center;gap:6px}
-.chip.on{border-color:var(--primary);background:var(--primary);color:#fff;font-weight:600}
+.chip{padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;color:var(--body);min-height:38px;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.chip:hover{border-color:var(--primary)}
+.chip.on{border-color:var(--primary);background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(11,95,165,.3)}
 .chip .dot{width:8px;height:8px;border-radius:50%}
 
 /* 模式卡 */
 .mode-grid{display:grid;grid-template-columns:1fr;gap:12px}
 @media (min-width:700px){.mode-grid{grid-template-columns:repeat(3,1fr)}}
-.mode-card{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;background:var(--surface);text-align:left;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow)}
-.mode-card:hover{border-color:var(--primary)}
-.mode-card .mode-name{font-size:15px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px}
+.mode-card{border:1px solid var(--line);border-radius:var(--radius);padding:15px 16px;background:var(--surface);text-align:left;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s,border-color .15s;position:relative;overflow:hidden}
+.mode-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--primary)}
+.mode-card .mode-name{font-size:15px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:8px}
 .mode-card .mode-name svg{width:18px;height:18px;color:var(--primary)}
+.mode-card.exam .mode-name svg{color:var(--accent)}
 .mode-card .mode-desc{font-size:13px;color:var(--muted);flex:1}
-.mode-card .mode-count{font-size:12px;color:var(--primary);font-weight:600}
+.mode-card .mode-count{font-size:12px;color:var(--primary);font-weight:700}
+.mode-card.exam .mode-count{color:var(--accent)}
+.mode-card .badge-new{position:absolute;top:12px;right:12px;font-size:10.5px;font-weight:700;background:var(--accent);color:#fff;padding:2px 8px;border-radius:999px}
 
 /* 按钮 */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:9px;font-size:15px;font-weight:600;transition:background .15s,transform .05s}
-.btn:active{transform:scale(.98)}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-primary:hover{background:#0C3E6B}
-.btn-accent{background:var(--accent);color:#fff}
-.btn-accent:hover{background:#C96A2A}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:700;transition:background .15s,transform .05s,box-shadow .15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 3px 10px rgba(11,95,165,.3)}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-accent{background:linear-gradient(135deg,var(--accent),#F9A03F);color:#fff;box-shadow:0 3px 10px rgba(244,122,30,.3)}
+.btn-accent:hover{filter:brightness(1.06)}
 .btn-ghost{border:1px solid var(--line);background:var(--surface);color:var(--body)}
 .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
 .btn-ok{background:var(--ok);color:#fff}
@@ -88,23 +129,31 @@ main{flex:1;width:100%;max-width:1000px;margin:0 auto;padding:20px 16px 96px}
 
 /* 刷题视图 */
 .quiz-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.quiz-progress{flex:1;min-width:140px;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
-.quiz-progress i{display:block;height:100%;background:var(--primary);border-radius:99px;transition:width .25s}
-.quiz-count{font-size:13px;color:var(--muted);white-space:nowrap}
-.tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;color:#fff;white-space:nowrap}
+.quiz-progress{flex:1;min-width:140px;height:9px;background:var(--line);border-radius:99px;overflow:hidden}
+.quiz-progress i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-2));border-radius:99px;transition:width .25s}
+.quiz-count{font-size:13px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.exam-timer{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:800;color:var(--accent);background:var(--accent-soft);padding:4px 12px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.exam-timer.warn{color:#fff;background:var(--bad)}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;color:#fff;white-space:nowrap}
 .tag.type-judge{background:var(--m1)}
 .tag.type-single{background:var(--m2)}
 .tag.type-multi{background:var(--m3)}
 .tag.type-short{background:var(--m4)}
 .tag.type-case{background:var(--m5)}
-.tag.module{background:var(--primary-soft);color:var(--primary);font-weight:600}
+.tag.module{background:var(--primary-soft);color:var(--primary);font-weight:700}
 
-.q-body{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.q-body{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;transition:background .25s}
 .q-title{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px;line-height:1.7}
 .q-title .q-no{color:var(--primary);margin-right:6px}
 .q-title .q-case-title{display:block;font-size:14px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.q-title-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:16px}
+.q-title-row .q-title{flex:1;margin-bottom:0}
+.star-btn{flex:0 0 40px;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .15s}
+.star-btn:hover{background:var(--accent-soft)}
+.star-btn.on{color:var(--accent)}
+.star-btn svg{width:22px;height:22px}
 .opts{display:flex;flex-direction:column;gap:10px}
-.opt{display:flex;align-items:flex-start;gap:12px;width:100%;min-height:48px;padding:12px 14px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);text-align:left;font-size:15px;line-height:1.5;transition:border-color .15s,background .15s}
+.opt{display:flex;align-items:flex-start;gap:12px;width:100%;min-height:48px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);text-align:left;font-size:15px;line-height:1.5;transition:border-color .15s,background .15s}
 .opt .opt-key{flex:0 0 26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);margin-top:2px}
 .opt:hover{border-color:var(--primary)}
 .opt.selected{border-color:var(--primary);background:var(--primary-soft)}
@@ -118,23 +167,27 @@ main{flex:1;width:100%;max-width:1000px;margin:0 auto;padding:20px 16px 96px}
 .opt[disabled]:hover{border-color:var(--line)}
 
 .judge-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.judge-btn{min-height:64px;font-size:17px;font-weight:700;border:1.5px solid var(--line);border-radius:9px;background:var(--surface)}
-.judge-btn:hover{border-color:var(--primary)}
+.judge-btn{min-height:64px;font-size:17px;font-weight:700;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);transition:all .15s}
+.judge-btn:hover{border-color:var(--primary);background:var(--primary-soft)}
 .judge-btn.correct{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
 .judge-btn.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
 
-.feedback{margin-top:16px;border-radius:9px;padding:14px 16px;display:none}
+.feedback{margin-top:16px;border-radius:10px;padding:14px 16px;display:none;animation:fbIn .25s ease}
+@keyframes fbIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .feedback.show{display:block}
 .feedback.ok{background:var(--ok-soft);color:#14532D}
+body.dark .feedback.ok{color:#86EFAC}
 .feedback.bad{background:var(--bad-soft);color:#7B1F17}
-.feedback .fb-title{font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+body.dark .feedback.bad{color:#FCA5A5}
+.feedback .fb-title{font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .feedback .fb-explain{font-size:14px;line-height:1.7}
 .feedback .fb-explanation{margin-top:10px;font-size:14px;color:var(--body);background:rgba(255,255,255,.6);border-radius:8px;padding:10px 12px}
+body.dark .feedback .fb-explanation{background:rgba(255,255,255,.05)}
 .fb-actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
 
 /* 案例/简答参考答案 */
-.answer-panel{margin-top:16px;border:1.5px dashed var(--primary);border-radius:9px;padding:14px 16px;background:var(--primary-soft)}
-.answer-panel .ap-title{font-weight:700;color:var(--primary);margin-bottom:6px}
+.answer-panel{margin-top:16px;border:1.5px dashed var(--primary);border-radius:10px;padding:14px 16px;background:var(--primary-soft)}
+.answer-panel .ap-title{font-weight:800;color:var(--primary);margin-bottom:6px}
 .answer-panel .ap-text{font-size:14px;line-height:1.8}
 
 .quiz-nav{display:flex;gap:10px;margin-top:16px;align-items:center;flex-wrap:wrap}
@@ -142,41 +195,69 @@ main{flex:1;width:100%;max-width:1000px;margin:0 auto;padding:20px 16px 96px}
 
 /* 答题卡 */
 .sheet-wrap{margin-top:16px}
-.sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
 .sheet-head h3{font-size:15px;color:var(--ink)}
 .sheet-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 @media (min-width:700px){.sheet-grid{grid-template-columns:repeat(10,1fr)}}
-.sheet-cell{aspect-ratio:1;border-radius:7px;border:1px solid var(--line);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--muted);min-height:38px}
+.sheet-cell{aspect-ratio:1;border-radius:8px;border:1px solid var(--line);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);min-height:38px;transition:transform .1s}
+.sheet-cell:hover{transform:scale(1.08)}
 .sheet-cell.now{border-color:var(--primary);color:var(--primary);box-shadow:0 0 0 2px var(--primary-soft)}
 .sheet-cell.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .sheet-cell.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.sheet-cell.fav{outline:2px solid var(--accent);outline-offset:-2px}
 
 /* 结果页 */
 .done-hero{text-align:center;padding:30px 16px 20px}
 .done-hero .score{font-size:52px;font-weight:800;color:var(--primary);line-height:1.1}
 .done-hero .score small{font-size:18px;font-weight:600}
 .done-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:520px;margin:0 auto}
-.done-stat{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:12px}
-.done-stat .d-num{font-size:22px;font-weight:700;color:var(--ink)}
+.done-stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px}
+.done-stat .d-num{font-size:22px;font-weight:800;color:var(--ink)}
 .done-stat .d-label{font-size:12px;color:var(--muted)}
+
+/* 掌握度统计 */
+.mastery{display:flex;flex-direction:column;gap:12px}
+.mastery-row{display:grid;grid-template-columns:120px 1fr 56px;align-items:center;gap:10px}
+@media (max-width:520px){.mastery-row{grid-template-columns:96px 1fr 48px}}
+.mastery-name{font-size:13px;color:var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mastery-bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden}
+.mastery-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ok),#4ADE80);transition:width .4s}
+.mastery-bar i.low{background:linear-gradient(90deg,var(--bad),#F87171)}
+.mastery-bar i.mid{background:linear-gradient(90deg,#F59E0B,#FBBF24)}
+.mastery-val{font-size:12.5px;font-weight:700;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.mastery-none{font-size:13px;color:var(--muted);text-align:center;padding:8px}
+
+/* 成绩历史 */
+.hist-list{display:flex;flex-direction:column;gap:10px}
+.hist-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px 14px}
+.hist-score{flex:0 0 62px;font-size:22px;font-weight:800;color:var(--primary)}
+.hist-info{flex:1;min-width:0}
+.hist-meta{font-size:13px;color:var(--body)}
+.hist-time{font-size:12px;color:var(--muted);margin-top:2px}
+.hist-rate{font-size:13px;font-weight:700;color:var(--ok)}
+.hist-empty{font-size:13px;color:var(--muted);text-align:center;padding:10px}
 
 /* 错题本 */
 .wrong-list{display:flex;flex-direction:column;gap:10px}
-.wrong-item{border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow)}
+.wrong-item{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow);transition:box-shadow .15s}
+.wrong-item:hover{box-shadow:var(--shadow-lg)}
 .wrong-item .wi-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .wrong-item .wi-q{font-size:15px;color:var(--ink);flex:1}
-.wrong-item .wi-go{margin-top:8px}
+.wrong-item .wi-go{margin-top:8px;display:flex;gap:8px;align-items:center}
+.wi-star{color:var(--muted);width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.wi-star.on{color:var(--accent)}
+.wi-star svg{width:18px;height:18px}
 .empty{text-align:center;padding:40px 16px;color:var(--muted);font-size:15px}
 .empty svg{width:44px;height:44px;margin:0 auto 12px;color:var(--line);display:block}
 
 /* toast */
-#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:9px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:99;max-width:86vw;text-align:center}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:99;max-width:86vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.25)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* 底部导航(移动) */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);display:flex;z-index:30}
-.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 10px;font-size:11px;color:var(--muted);min-height:56px}
-.bottom-nav a.active{color:var(--primary);font-weight:600}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 10px;font-size:11px;color:var(--muted);min-height:56px;transition:color .15s}
+.bottom-nav a.active{color:var(--primary);font-weight:700}
 .bottom-nav svg{width:22px;height:22px}
 @media (min-width:768px){.bottom-nav{display:none}}
 
@@ -207,7 +288,9 @@ main{flex:1;width:100%;max-width:1000px;margin:0 auto;padding:20px 16px 96px}
         <a href="#/home" class="nav-btn active" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg><span>首页</span></a>
         <a href="#/quiz" class="nav-btn" data-nav="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>刷题</span></a>
         <a href="#/wrong" class="nav-btn" data-nav="wrong"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5"/><path d="M12 18h.01"/></svg><span>错题</span></a>
+        <a href="#/fav" class="nav-btn" data-nav="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg><span>收藏</span></a>
       </nav>
+      <button class="theme-btn" onclick="toggleTheme()" title="夜间模式"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
     </div>
   </header>
 
@@ -217,6 +300,7 @@ main{flex:1;width:100%;max-width:1000px;margin:0 auto;padding:20px 16px 96px}
     <a href="#/home" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>首页</a>
     <a href="#/quiz" data-nav="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>刷题</a>
     <a href="#/wrong" data-nav="wrong"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5"/><path d="M12 18h.01"/></svg>错题</a>
+    <a href="#/fav" data-nav="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>收藏</a>
   </nav>
 </div>
 <div id="toast"></div>
@@ -275,10 +359,11 @@ function toast(msg){
 /* ---------- 路由 ---------- */
 function route(){
   const h = location.hash || "#/home";
-  const nav = h.startsWith("#/quiz") ? "quiz" : h.startsWith("#/wrong") ? "wrong" : "home";
+  const nav = h.startsWith("#/quiz") ? "quiz" : h.startsWith("#/wrong") ? "wrong" : h.startsWith("#/fav") ? "fav" : "home";
   document.querySelectorAll("[data-nav]").forEach(a=>a.classList.toggle("active", a.dataset.nav===nav));
   if(h.startsWith("#/quiz")) renderQuiz();
   else if(h.startsWith("#/wrong")) renderWrong();
+  else if(h.startsWith("#/fav")) renderFav();
   else renderHome();
   window.scrollTo(0,0);
 }
@@ -385,6 +470,7 @@ function exitQuiz(){ session = null; location.hash = "#/home"; }
 /* ---------- 刷题视图 ---------- */
 function renderQuiz(){
   if(!session || !session.ids.length){ location.hash="#/home"; return; }
+  if(session.mode === "exam"){ renderExamQ(); return; }
   const q = QUESTIONS.find(x=>x.id === session.ids[session.idx]);
   const cur = session.idx + 1, total = session.ids.length;
   const answered = Object.keys(session.answers).length;
@@ -448,7 +534,8 @@ function renderQuiz(){
       <span class="tag module">${esc(q.module)}</span>
     </div>
     <div class="q-body">
-      <div class="q-title">${q.type==="case"&&q.title?`<span class="q-case-title">${esc(q.title)}</span>`:""}<span class="q-no">${session.idx+1}.</span>${esc(q.q)}</div>
+      <div class="q-title-row"><div class="q-title">${q.type==="case"&&q.title?`<span class="q-case-title">${esc(q.title)}</span>`:""}<span class="q-no">${session.idx+1}.</span>${esc(q.q)}</div>
+      <button class="star-btn${isFav(q.id)?" on":""}" id="starBtn" onclick="toggleFav(${q.id})" title="收藏本题"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg></button></div>
       ${body}
       ${fb}
       ${answerPanel}
@@ -626,9 +713,352 @@ function singleReview(id){
   location.hash = "#/quiz";
 }
 
+/* ================= 新增功能：收藏 / 模拟考试 / 掌握度 / 成绩历史 / 夜间模式 / 键盘 ================= */
+
+const FAV_KEY = "qc_fav_v1";
+const EXAM_KEY = "qc_exam_v1";
+const THEME_KEY = "qc_theme_v1";
+let favSet = loadFav();
+function loadFav(){ try{ return new Set(JSON.parse(localStorage.getItem(FAV_KEY))||[]); }catch(e){ return new Set(); } }
+function saveFav(){ try{ localStorage.setItem(FAV_KEY, JSON.stringify([...favSet])); }catch(e){} }
+function isFav(id){ return favSet.has(id); }
+function toggleFav(id){
+  if(favSet.has(id)) favSet.delete(id); else favSet.add(id);
+  saveFav();
+  const el = document.getElementById("starBtn");
+  if(el) el.classList.toggle("on", favSet.has(id));
+  toast(favSet.has(id) ? "已收藏本题" : "已取消收藏");
+}
+
+let examHist = loadExams();
+function loadExams(){ try{ return JSON.parse(localStorage.getItem(EXAM_KEY))||[]; }catch(e){ return []; } }
+function saveExams(){ try{ localStorage.setItem(EXAM_KEY, JSON.stringify(examHist)); }catch(e){} }
+function addExam(rec){ examHist.unshift(rec); if(examHist.length>20) examHist.length=20; saveExams(); }
+
+/* 夜间模式 */
+function initTheme(){
+  const saved = localStorage.getItem(THEME_KEY);
+  if(saved === "dark" || (saved === null && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)){
+    document.body.classList.add("dark");
+  }
+  renderThemeIcon();
+}
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  try{ localStorage.setItem(THEME_KEY, document.body.classList.contains("dark") ? "dark" : "light"); }catch(e){}
+  renderThemeIcon();
+}
+function renderThemeIcon(){
+  const el = document.getElementById("themeIcon");
+  if(!el) return;
+  const dark = document.body.classList.contains("dark");
+  el.innerHTML = dark
+    ? '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'
+    : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+}
+
+/* 键盘翻题 */
+document.addEventListener("keydown", function(e){
+  if(location.hash.startsWith("#/quiz") && session){
+    if(e.key === "ArrowLeft"){ prevQ(); }
+    else if(e.key === "ArrowRight"){ nextQ(); }
+  }
+});
+
+/* ---------- 模拟考试 ---------- */
+function startExam(){
+  const f = filterState();
+  const pool = QUESTIONS.filter(q=>f.types.includes(q.type) && f.mods.includes(q.module));
+  const judge = shuffle(pool.filter(q=>q.type==="judge")).slice(0,25);
+  const single = shuffle(pool.filter(q=>q.type==="single")).slice(0,50);
+  const ids = shuffle(judge.concat(single)).map(q=>q.id);
+  if(ids.length < 10){ toast("当前筛选下题目太少，请扩大筛选范围"); return; }
+  session = { mode:"exam", ids, idx:0, answers:{}, verdicts:{}, timeLeft: 45*60, submitted:false };
+  location.hash = "#/quiz";
+}
+let examTimer = null;
+function startExamTimer(){
+  stopExamTimer();
+  examTimer = setInterval(function(){
+    if(!session || session.mode !== "exam" || session.submitted){ stopExamTimer(); return; }
+    session.timeLeft--;
+    const el = document.getElementById("examTimer");
+    if(el) el.textContent = fmtTime(session.timeLeft);
+    if(session.timeLeft <= 0){ submitExam(); }
+  }, 1000);
+}
+function stopExamTimer(){ if(examTimer){ clearInterval(examTimer); examTimer = null; } }
+function fmtTime(s){
+  const m = Math.floor(s/60), sec = s%60;
+  return (m<10?"0":"") + m + ":" + (sec<10?"0":"") + sec;
+}
+function examAnswer(k){
+  const q = curQ();
+  if(session.answers[q.id] !== undefined || session.submitted) return;
+  if(q.type === "single" || q.type === "judge"){
+    session.answers[q.id] = k;
+    if(session.idx < session.ids.length-1){ session.idx++; }
+    else { submitExam(); return; }
+    renderExamQ();
+  } else {
+    let sel = session.answers[q.id] || [];
+    sel = Array.isArray(sel) ? sel : [];
+    sel = sel.includes(k) ? sel.filter(x=>x!==k) : sel.concat(k);
+    session.answers[q.id] = sel;
+    renderExamQ();
+  }
+}
+function renderExamQ(){
+  if(!session || session.submitted){ return; }
+  const total = session.ids.length;
+  const answered = Object.keys(session.answers).length;
+  const q = curQ();
+  let body = "";
+  if(q.type === "judge"){
+    body = `<div class="judge-row">
+      <button class="judge-btn${session.answers[q.id]==="√"?" correct":""}" onclick="examAnswer('√')">√　正确</button>
+      <button class="judge-btn${session.answers[q.id]==="×"?" correct":""}" onclick="examAnswer('×')">×　错误</button></div>`;
+  } else {
+    body = `<div class="opts">` + q.opts.map(op=>{
+      const sel = session.answers[q.id] || [];
+      const selArr = Array.isArray(sel)?sel:[];
+      const isSel = selArr.includes(op.k);
+      let cls = "opt" + (isSel ? " selected" : "");
+      return `<button class="${cls}" onclick="examAnswer('${op.k}')"><span class="opt-key">${op.k}</span><span>${esc(op.t)}</span></button>`;
+    }).join("") + `</div>`;
+  }
+  document.getElementById("view").innerHTML = `
+    <div class="quiz-head">
+      <span class="exam-timer${session.timeLeft<=300?" warn":""}" id="examTimer">${fmtTime(session.timeLeft)}</span>
+      <div class="quiz-progress"><i style="width:${Math.round(answered/total*100)}%"></i></div>
+      <span class="quiz-count">${answered} / ${total}</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <span class="tag type-${q.type}">${TYPE_META[q.type]}</span>
+      <span class="tag module">${esc(q.module)}</span>
+    </div>
+    <div class="q-body">
+      <div class="q-title-row"><div class="q-title">${q.type==="case"&&q.title?`<span class="q-case-title">${esc(q.title)}</span>`:""}<span class="q-no">${session.idx+1}.</span>${esc(q.q)}</div></div>
+      ${body}
+      <div class="quiz-nav">
+        <button class="btn btn-ghost" onclick="prevQ()" ${session.idx===0?"disabled":""}>上一题</button>
+        <button class="btn btn-ghost" onclick="toggleSheet()">答题卡</button>
+        <span class="spacer"></span>
+        <button class="btn btn-accent" onclick="submitExam()">交卷</button>
+        <button class="btn btn-ghost" onclick="exitQuiz()">退出</button>
+      </div>
+    </div>
+    <div class="sheet-wrap hidden" id="sheetPanel">${sheetHtml()}</div>`;
+  startExamTimer();
+}
+function submitExam(){
+  if(!session || session.submitted) return;
+  session.submitted = true;
+  stopExamTimer();
+  const total = session.ids.length;
+  const used = 45*60 - (session.timeLeft||0);
+  const detail = session.ids.map(id=>{
+    const q = QUESTIONS.find(x=>x.id===id);
+    const sel = session.answers[id];
+    let right = false;
+    if(q.type === "judge") right = (q.a === sel);
+    else if(q.type === "single") right = (q.a === sel);
+    else if(q.type === "multi") right = (Array.isArray(sel) && sel.slice().sort().join("") === q.a);
+    const p = progress[id] || {n:0,c:0,last:false};
+    p.n = (p.n||0)+1; p.c = (p.c||0)+(right?1:0); p.last = right;
+    progress[id] = p;
+    return {q, sel, right};
+  });
+  saveProgress();
+  const okN = detail.filter(d=>d.right).length;
+  const rate = Math.round(okN/total*100);
+  addExam({time:new Date().toLocaleString("zh-CN",{hour12:false}), total, okN, rate, used});
+  const wrongList = detail.filter(d=>!d.right);
+  document.getElementById("view").innerHTML = `
+    <div class="done-hero">
+      <div class="score">${rate}<small> 分</small></div>
+      <p style="color:var(--muted);margin-top:6px">模拟考试完成 · 用时 ${fmtTime(used)}</p>
+    </div>
+    <div class="done-stats">
+      <div class="done-stat"><div class="d-num">${total}</div><div class="d-label">总题数</div></div>
+      <div class="done-stat"><div class="d-num">${okN}</div><div class="d-label">答对</div></div>
+      <div class="done-stat"><div class="d-num">${total-okN}</div><div class="d-label">答错</div></div>
+    </div>
+    ${wrongList.length ? `<div class="card" style="margin-top:16px">
+      <div class="filter-title">本次错题（${wrongList.length}）</div>
+      <div class="wrong-list">${wrongList.slice(0,10).map(x=>`
+        <div class="wrong-item">
+          <div style="flex:0 0 auto"><span class="tag type-${x.q.type}">${TYPE_META[x.q.type]}</span></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-q">${esc(x.q.q)}</div>
+            <div class="fb-explain" style="margin-top:6px">正确答案：${esc(x.q.a)}</div>
+          </div>
+        </div>`).join("")}
+        ${wrongList.length>10?`<div style="text-align:center;font-size:13px;color:var(--muted);padding:6px">其余 ${wrongList.length-10} 题可在错题本查看</div>`:""}
+      </div></div>` : ""}
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="startExam()">再考一次</button>
+      <button class="btn btn-ghost" onclick="exitQuiz()">返回首页</button>
+      <button class="btn btn-accent" onclick="goWrong()">去错题本</button>
+    </div>`;
+}
+
+/* ---------- 收藏夹视图 ---------- */
+function renderFav(){
+  const favIds = [...favSet].map(Number);
+  const items = QUESTIONS.filter(q=>favIds.includes(q.id));
+  document.getElementById("view").innerHTML = `
+    <h1 class="view-title">收藏夹</h1>
+    <p class="view-desc">共收藏 ${items.length} 题。刷题页题目旁点五角星即可收藏/取消。</p>
+    ${items.length ? `<button class="btn btn-accent" style="margin-bottom:14px" onclick="startFavAll()">全部重刷</button>` : ""}
+    <div class="wrong-list">
+      ${items.length ? items.map(q=>`
+        <div class="wrong-item">
+          <div style="flex:0 0 auto"><span class="tag type-${q.type}">${TYPE_META[q.type]}</span></div>
+          <div style="flex:1;min-width:0">
+            <div class="wi-meta"><span class="tag module">${esc(q.module)}</span></div>
+            <div class="wi-q">${esc(q.q)}</div>
+            <div class="wi-go">
+              <button class="btn btn-ghost" onclick="singleReview(${q.id})">查看本题</button>
+              <button class="wi-star on" onclick="toggleFavList(${q.id})" title="取消收藏"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg></button>
+            </div>
+          </div>
+        </div>`).join("") : `
+        <div class="empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
+          <div>收藏夹是空的，刷题时点题目旁的五角星收藏</div>
+        </div>`}
+    </div>`;
+}
+function toggleFavList(id){ toggleFav(id); renderFav(); }
+function startFavAll(){
+  const favIds = [...favSet].map(Number);
+  const ids = QUESTIONS.filter(q=>favIds.includes(q.id)).map(q=>q.id);
+  if(!ids.length){ toast("收藏夹是空的"); return; }
+  session = { mode:"fav", ids, idx:0, answers:{}, verdicts:{} };
+  location.hash = "#/quiz";
+}
+
+/* ---------- 模块掌握度（首页） ---------- */
+function masteryHtml(){
+  const modNames = Object.keys(MOD_COUNTS);
+  return `<div class="mastery">` + modNames.map(m=>{
+    const qs = QUESTIONS.filter(q=>q.module===m);
+    const aIds = qs.filter(q=>progress[q.id]);
+    if(!aIds.length){ return `<div class="mastery-row"><span class="mastery-name">${esc(m)}</span><div class="mastery-bar"><i style="width:0%"></i></div><span class="mastery-val">未刷</span></div>`; }
+    let ok=0, n=0;
+    aIds.forEach(q=>{ ok += progress[q.id].c||0; n += progress[q.id].n||0; });
+    const rate = Math.round(ok/n*100);
+    const cls = rate<60?"low":(rate<80?"mid":"");
+    return `<div class="mastery-row"><span class="mastery-name">${esc(m)}</span><div class="mastery-bar"><i class="${cls}" style="width:${rate}%"></i></div><span class="mastery-val">${rate}%</span></div>`;
+  }).join("") + `</div>`;
+}
+
+/* ---------- 考试记录（首页） ---------- */
+function historyHtml(){
+  if(!examHist.length){ return `<div class="hist-empty">暂无考试记录，来一场模拟考试吧</div>`; }
+  return `<div class="hist-list">` + examHist.slice(0,5).map(h=>`
+    <div class="hist-item">
+      <div class="hist-score">${h.rate}<small> 分</small></div>
+      <div class="hist-info">
+        <div class="hist-meta">${h.total} 题 · 答对 ${h.okN} · 用时 ${fmtTime(h.used||0)}</div>
+        <div class="hist-time">${esc(h.time)}</div>
+      </div>
+      <div class="hist-rate">${h.rate}%</div>
+    </div>`).join("") + `</div>`;
+}
+function clearHistory(){
+  examHist = []; saveExams(); renderHome();
+}
+
+/* ---------- 首页（新版：Hero + 掌握度 + 考试记录 + 五种模式） ---------- */
+function renderHome(){
+  const st = stats();
+  const f = filterState();
+  const nFav = favSet.size;
+  const nWrong = st.wrong;
+  const typeChips = Object.keys(TYPE_COUNTS).map(t =>
+    `<button class="chip${f.types.includes(t)?" on":""}" data-type="${t}" onclick="toggleFilterType('${t}')">${TYPE_META[t]}（${TYPE_COUNTS[t]}题）</button>`
+  ).join("");
+  const modChips = Object.keys(MOD_COUNTS).map(m =>
+    `<button class="chip${f.mods.includes(m)?" on":""}" data-mod="${esc(m)}" onclick="toggleFilterMod('${esc(m)}')">${m}（${MOD_COUNTS[m]}题）</button>`
+  ).join("");
+  document.getElementById("view").innerHTML = `
+    <div class="hero">
+      <div class="h-title">汽修刷题系统</div>
+      <div class="h-sub">湖北省技能高考 · 汽车维修类 · 875 题题库</div>
+      <div class="h-stats">
+        <div class="h-stat"><div class="h-num">${st.answered}<small> / 875</small></div><div class="h-label">已作答</div></div>
+        <div class="h-stat"><div class="h-num">${st.rate}<small>%</small></div><div class="h-label">总正确率</div></div>
+        <div class="h-stat"><div class="h-num">${nFav}</div><div class="h-label">收藏题目</div></div>
+        <div class="h-stat"><div class="h-num">${nWrong}</div><div class="h-label">待攻克错题</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="filter-block">
+        <div class="filter-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v4M15 2v4M4 8h16M6 8v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/></svg>题型筛选（默认全选）</div>
+        <div class="chips">${typeChips}</div>
+      </div>
+      <div class="filter-block">
+        <div class="filter-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>知识模块筛选（默认全选）</div>
+        <div class="chips">${modChips}</div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="resetFilter()">重置筛选</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="filter-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6V2M4.5 9.5 1.8 7.7M12 22v-4M20.5 9.5 22.2 7.7M6 16a6 6 0 1 1 12 0"/></svg>选择练习模式</div>
+      <div class="mode-grid">
+        <button class="mode-card" onclick="startQuiz('order')">
+          <span class="mode-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>顺序刷题</span>
+          <span class="mode-desc">按题库顺序逐题练习，适合系统复习。</span>
+          <span class="mode-count">${filteredCount(f)} 题可刷</span>
+        </button>
+        <button class="mode-card" onclick="startQuiz('random')">
+          <span class="mode-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h4l10 12h4"/><path d="M17 6h4v4"/><path d="M3 18h4l2-2.4"/></svg>随机刷题</span>
+          <span class="mode-desc">随机抽题打乱顺序，检验掌握程度。</span>
+          <span class="mode-count">${filteredCount(f)} 题可刷</span>
+        </button>
+        <button class="mode-card" onclick="startQuiz('wrong')">
+          <span class="mode-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5"/><path d="M12 18h.01"/></svg>错题重刷</span>
+          <span class="mode-desc">只刷最近答错的题，攻破薄弱点。</span>
+          <span class="mode-count">${nWrong} 题待攻克</span>
+        </button>
+        <button class="mode-card exam" onclick="startExam()">
+          <span class="badge-new">新</span>
+          <span class="mode-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>模拟考试</span>
+          <span class="mode-desc">限时 45 分钟自动组卷，交卷出成绩单与错题。</span>
+          <span class="mode-count">一键开考</span>
+        </button>
+        <button class="mode-card" onclick="startFavAll()">
+          <span class="mode-name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>收藏重刷</span>
+          <span class="mode-desc">只刷你收藏的题目，巩固重点。</span>
+          <span class="mode-count">${nFav} 题已收藏</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card card-hover">
+      <div class="filter-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 15v-4M12 15V8M16 15v-6"/></svg>模块掌握度</div>
+      ${masteryHtml()}
+    </div>
+
+    <div class="card card-hover">
+      <div style="display:flex;align-items:center;margin-bottom:10px">
+        <div class="filter-title" style="margin-bottom:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>考试记录</div>
+        <span style="flex:1"></span>
+        <button class="btn btn-ghost" style="min-height:32px;padding:4px 12px;font-size:12px" onclick="clearHistory()">清空记录</button>
+      </div>
+      ${historyHtml()}
+    </div>`;
+}
 /* ---------- 初始化 ---------- */
 document.addEventListener("DOMContentLoaded", ()=>{
   document.querySelectorAll(".chip").forEach(c=>c.classList.add("on"));
+  initTheme();
   route();
 });
 </script>
