@@ -7,14 +7,57 @@ const MOD_COUNTS = QUESTIONS.reduce((m,q)=>{m[q.module]=(m[q.module]||0)+1;retur
 const MODULES = ["汽车概论与机械基础","汽车发动机维修","汽车底盘维修","汽车电子与电器维修","汽车维修工操作知识"];
 const CHAP_MOD = {}; const MOD_CHAPTERS = {};
 QUESTIONS.forEach(q=>{ CHAP_MOD[q.chapter]=q.module; (MOD_CHAPTERS[q.module] = MOD_CHAPTERS[q.module]||{})[q.chapter] = (MOD_CHAPTERS[q.module][q.chapter]||0)+1; });
+/* ===== 账号系统 ===== */
+const ACCT_KEY = "qc_acct_v1";
+const SESSION_KEY = "qc_session_v1";
+function loadAccts(){ try{ return JSON.parse(localStorage.getItem(ACCT_KEY))||[]; }catch(e){ return []; } }
+function saveAccts(a){ try{ localStorage.setItem(ACCT_KEY, JSON.stringify(a)); }catch(e){} }
+function ensureAdmin(){ const a=loadAccts(); if(!a.some(x=>x.role==="admin")){ a.unshift({name:"admin", pass:"admin123", role:"admin", createTime:new Date().toLocaleString("zh-CN",{hour12:false})}); saveAccts(a); } }
+ensureAdmin();
+function loadSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY))||null; }catch(e){ return null; } }
+let curUser = loadSession();
+function saveSession(u){ if(u) localStorage.setItem(SESSION_KEY, JSON.stringify(u)); else localStorage.removeItem(SESSION_KEY); }
+function acctKey(prefix){ return curUser ? prefix+"_"+curUser.name : prefix; }
+function login(name, pass){
+  const a=loadAccts();
+  const u=a.find(x=>x.name===name && x.pass===pass);
+  if(!u) return false;
+  curUser=u; saveSession(u); reloadUserData(); refreshAcctBtn(); return true;
+}
+function register(name, pass){
+  const a=loadAccts();
+  if(a.some(x=>x.name===name)) return "用户名已存在";
+  if(!name || !pass) return "请填写用户名和密码";
+  if(name==="admin") return "该用户名不可注册";
+  a.push({name, pass, role:"user", createTime:new Date().toLocaleString("zh-CN",{hour12:false})});
+  saveAccts(a);
+  return true;
+}
+function logout(){ curUser=null; saveSession(null); reloadUserData(); refreshAcctBtn(); }
+function reloadUserData(){
+  progress = loadProgress();
+  favSet = loadFav();
+  examHist = loadExams();
+  weekRec = loadWeek();
+  myQuestions = loadMyQuestions();
+}
+function getUserStats(name){
+  try{
+    const p = JSON.parse(localStorage.getItem("qc_progress_v1_"+name))||{};
+    let ok=0,tr=0,wr=0;
+    Object.keys(p).map(Number).filter(Number.isFinite).forEach(id=>{ const x=p[id]||{}; ok+=x.c||0; tr+=x.n||0; if(x.last===false) wr++; });
+    const ex = JSON.parse(localStorage.getItem("qc_exam_v1_"+name))||[];
+    return {answered:Object.keys(p).length, ok, tr, rate:tr?Math.round(ok/tr*100):0, wrong:wr, exams:ex.length};
+  }catch(e){ return {answered:0,ok:0,tr:0,rate:0,wrong:0,exams:0}; }
+}
 const STORE_KEY = "qc_progress_v1";
 
 /* ---------- 进度持久化 ---------- */
 function loadProgress(){
-  try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; }
+  try{ return JSON.parse(localStorage.getItem(acctKey("qc_progress_v1"))) || {}; }catch(e){ return {}; }
 }
 let progress = loadProgress();
-function saveProgress(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(progress)); }catch(e){} }
+function saveProgress(){ try{ localStorage.setItem(acctKey("qc_progress_v1"), JSON.stringify(progress)); }catch(e){} }
 
 function stats(){
   const ids = Object.keys(progress).map(Number).filter(n=>Number.isFinite(n));
@@ -488,8 +531,8 @@ const FAV_KEY = "qc_fav_v1";
 const EXAM_KEY = "qc_exam_v1";
 const THEME_KEY = "qc_theme_v1";
 let favSet = loadFav();
-function loadFav(){ try{ return new Set(JSON.parse(localStorage.getItem(FAV_KEY))||[]); }catch(e){ return new Set(); } }
-function saveFav(){ try{ localStorage.setItem(FAV_KEY, JSON.stringify([...favSet])); }catch(e){} }
+function loadFav(){ try{ return new Set(JSON.parse(localStorage.getItem(acctKey("qc_fav_v1")))||[]); }catch(e){ return new Set(); } }
+function saveFav(){ try{ localStorage.setItem(acctKey("qc_fav_v1"), JSON.stringify([...favSet])); }catch(e){} }
 function isFav(id){ return favSet.has(id); }
 function toggleFav(id){
   if(favSet.has(id)) favSet.delete(id); else favSet.add(id);
@@ -500,26 +543,125 @@ function toggleFav(id){
 }
 
 let examHist = loadExams();
-function loadExams(){ try{ return JSON.parse(localStorage.getItem(EXAM_KEY))||[]; }catch(e){ return []; } }
-function saveExams(){ try{ localStorage.setItem(EXAM_KEY, JSON.stringify(examHist)); }catch(e){} }
+function loadExams(){ try{ return JSON.parse(localStorage.getItem(acctKey("qc_exam_v1")))||[]; }catch(e){ return []; } }
+function saveExams(){ try{ localStorage.setItem(acctKey("qc_exam_v1"), JSON.stringify(examHist)); }catch(e){} }
 function addExam(rec){ examHist.unshift(rec); if(examHist.length>20) examHist.length=20; saveExams(); }
 
 /* 每周一练记录 */
 const WEEK_KEY = "qc_week_v1";
 function weekId(){ const d=new Date(); const start=new Date(d.getFullYear(),0,1); const wk=Math.ceil((((d-start)/86400000)+start.getDay()+1)/7); return d.getFullYear()+"-W"+String(wk).padStart(2,"0"); }
-function loadWeek(){ try{ return JSON.parse(localStorage.getItem(WEEK_KEY))||{}; }catch(e){ return {}; } }
+function loadWeek(){ try{ return JSON.parse(localStorage.getItem(acctKey("qc_week_v1")))||{}; }catch(e){ return {}; } }
 let weekRec = loadWeek();
-function saveWeek(){ try{ localStorage.setItem(WEEK_KEY, JSON.stringify(weekRec)); }catch(e){} }
+function saveWeek(){ try{ localStorage.setItem(acctKey("qc_week_v1"), JSON.stringify(weekRec)); }catch(e){} }
 function weekStatusText(){
   if(weekRec && weekRec.week === weekId()) return "本周已练 "+weekRec.rate+" 分";
   return "本周未练 · 精选20题";
 }
 
+/* ===== 账号页面 ===== */
+let acctMode = "login";
+function renderAccount(){
+  if(!curUser){
+    const isLogin = acctMode==="login";
+    document.getElementById("view").innerHTML = `
+      <h1 class="view-title">${isLogin?"账号登录":"注册账号"}</h1>
+      <p class="view-desc">${isLogin?"登录后你的刷题进度、错题、收藏独立保存；教师账号可进入后台管理。":"注册后开始独立记录刷题进度（不同账号互不影响）。"}</p>
+      <div class="card">
+        <div class="form-row"><label>用户名</label><input id="acct-name" placeholder="请输入用户名" maxlength="20"></div>
+        <div class="form-row"><label>密码</label><input id="acct-pass" type="password" placeholder="请输入密码" maxlength="20"></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="${isLogin?"doLogin()":"doRegister()"}">${isLogin?"登 录":"注 册"}</button>
+        <button class="btn btn-ghost" style="width:100%;margin-top:10px" onclick="acctMode='${isLogin?"register":"login"}';renderAccount()">${isLogin?"没有账号？去注册":"已有账号？去登录"}</button>
+      </div>`;
+  } else {
+    document.getElementById("view").innerHTML = `
+      <h1 class="view-title">我的账号</h1>
+      <p class="view-desc">当前登录：${esc(curUser.name)}（${curUser.role==="admin"?"管理员":"学生"}）</p>
+      <div class="card">
+        <div class="hist-meta">用户名：<b style="color:var(--ink)">${esc(curUser.name)}</b></div>
+        <div class="hist-time">注册时间：${esc(curUser.createTime)}</div>
+        <div class="hist-time" style="color:var(--muted)">不同账号的刷题进度、错题、收藏、考试记录各自独立保存。</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+        ${curUser.role==="admin"?`<button class="btn btn-primary" onclick="renderAdmin()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:-2px;margin-right:6px"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>后台账号管理</button>`:""}
+        <button class="btn btn-ghost" onclick="doLogout()">退出登录</button>
+      </div>`;
+  }
+}
+function doLogin(){
+  const name=document.getElementById("acct-name").value.trim();
+  const pass=document.getElementById("acct-pass").value;
+  if(!name||!pass){ toast("请填写用户名和密码"); return; }
+  if(!login(name,pass)){ toast("用户名或密码错误"); return; }
+  toast("登录成功："+name);
+  refreshAcctBtn();
+  renderHome();
+}
+function doRegister(){
+  const name=document.getElementById("acct-name").value.trim();
+  const pass=document.getElementById("acct-pass").value;
+  const r=register(name,pass);
+  if(r!==true){ toast(r); return; }
+  login(name,pass);
+  toast("注册成功，已自动登录");
+  refreshAcctBtn();
+  renderHome();
+}
+function doLogout(){ logout(); refreshAcctBtn(); renderHome(); toast("已退出登录"); }
+function refreshAcctBtn(){
+  const b=document.getElementById("acctBtn");
+  if(!b) return;
+  b.innerHTML = curUser ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${esc(curUser.name)}` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>登录`;
+}
+function renderAdmin(){
+  const accts = loadAccts();
+  const rows = accts.map(u=>({u, s:getUserStats(u.name)}));
+  const totalAns = rows.reduce((m,x)=>m+x.s.answered,0);
+  document.getElementById("view").innerHTML = `
+    <h1 class="view-title">后台账号管理</h1>
+    <p class="view-desc">共 ${accts.length} 个账号 · 累计已答 ${totalAns} 题。账号数据保存在当前设备浏览器中。</p>
+    <div class="hist-list">${rows.map(({u,s})=>`
+      <div class="hist-item">
+        <div style="flex:1">
+          <div class="hist-meta">${esc(u.name)} <span class="tag module">${u.role==="admin"?"管理员":"学生"}</span></div>
+          <div class="hist-time">已答 ${s.answered} · 正确率 ${s.rate}% · 错题 ${s.wrong} · 考试 ${s.exams} 次 · ${esc(u.createTime)}</div>
+        </div>
+        ${u.name!==curUser.name && u.role!=="admin" ? `<button class="btn btn-ghost" style="flex:0 0 auto;padding:8px 12px" onclick="delAccount('${esc(u.name)}')">删除</button>` : `<span style="flex:0 0 auto;color:var(--muted);font-size:12px;align-self:center">${u.name===curUser.name?"当前":"-"}</span>`}
+      </div>`).join("")}</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+      <button class="btn btn-ghost" onclick="exportAcctData()">导出账号数据</button>
+      <button class="btn btn-ghost" onclick="renderAccount()">返回</button>
+    </div>`;
+}
+function delAccount(name){
+  if(!window.confirm("确定删除账号 "+name+" 及其全部刷题数据？")) return;
+  let a=loadAccts();
+  a=a.filter(x=>x.name!==name);
+  saveAccts(a);
+  ["qc_progress_v1","qc_fav_v1","qc_exam_v1","qc_week_v1","qc_myq_v1"].forEach(p=>{ try{ localStorage.removeItem(p+"_"+name); }catch(e){} });
+  toast("已删除 "+name);
+  renderAdmin();
+}
+function exportAcctData(){
+  const accts = loadAccts();
+  const data = {accts, progress:{}, exams:{}};
+  accts.forEach(u=>{
+    try{ data.progress[u.name]=JSON.parse(localStorage.getItem("qc_progress_v1_"+u.name)||"{}"); }catch(e){ data.progress[u.name]={}; }
+    try{ data.exams[u.name]=JSON.parse(localStorage.getItem("qc_exam_v1_"+u.name)||"[]"); }catch(e){ data.exams[u.name]=[]; }
+  });
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="匠考通关宝-账号数据.json";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  toast("已导出账号数据");
+}
+
 /* 用户自出题（每周一练） */
 const MYQ_KEY = "qc_myq_v1";
-function loadMyQuestions(){ try{ return JSON.parse(localStorage.getItem(MYQ_KEY))||[]; }catch(e){ return []; } }
+function loadMyQuestions(){ try{ return JSON.parse(localStorage.getItem(acctKey("qc_myq_v1")))||[]; }catch(e){ return []; } }
 let myQuestions = loadMyQuestions();
-function saveMyQuestions(){ try{ localStorage.setItem(MYQ_KEY, JSON.stringify(myQuestions)); }catch(e){} }
+function saveMyQuestions(){ try{ localStorage.setItem(acctKey("qc_myq_v1"), JSON.stringify(myQuestions)); }catch(e){} }
 let myQSeq = myQuestions.reduce((mx,q)=>{ const nm=parseInt(String(q.id).replace(/\D/g,"")); return isNaN(nm)?mx:Math.max(mx,nm); },0);
 function findQ(id){
   const q = QUESTIONS.find(x=>x.id===id);
@@ -1252,14 +1394,24 @@ function applyChapterPicker(){
 }
 
 /* ---------- 初始化 ---------- */
-(function(){
-  function boot(){
-    document.querySelectorAll(".chip").forEach(c=>c.classList.add("on"));
-    initTheme();
-    route();
+function bootApp(){
+  document.querySelectorAll(".chip").forEach(c=>c.classList.add("on"));
+  initTheme();
+  const topNav=document.getElementById("topNav");
+  if(topNav && !document.getElementById("acctBtn")){
+    const btn=document.createElement("a");
+    btn.className="nav-btn acct-btn"; btn.id="acctBtn"; btn.href="javascript:void(0)";
+    btn.onclick=function(){ renderAccount(); };
+    topNav.appendChild(btn);
   }
-  if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded", boot);}else{boot();}
-})();
+  refreshAcctBtn();
+  route();
+}
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", bootApp);
+} else {
+  bootApp();
+}
 
 
 

@@ -1,4 +1,4 @@
-/* 匠考通关宝 - 题库加载器 */
+/* 匠考通关宝 - 题库加载器（并行 + 超时） */
 (function(){
   var boot=document.getElementById("boot");
   var bootTxt=boot?boot.querySelector(".boot-txt"):null;
@@ -6,7 +6,11 @@
   function loadScript(u){
     return new Promise(function(res,rej){
       var el=document.createElement("script");
-      el.src=u; el.onload=res; el.onerror=function(){el.remove();rej(new Error(u));};
+      var done=false;
+      var timer=setTimeout(function(){ if(!done){ done=true; el.remove(); rej(new Error("timeout")); } }, 5000);
+      el.src=u;
+      el.onload=function(){ if(!done){ done=true; clearTimeout(timer); res(); } };
+      el.onerror=function(){ if(!done){ done=true; clearTimeout(timer); el.remove(); rej(new Error("fail")); } };
       document.head.appendChild(el);
     });
   }
@@ -18,11 +22,9 @@
     chain.forEach(function(u){ p=p.catch(function(){ return loadScript(u); }); });
     return p;
   }
-  var seq=Promise.resolve();
-  for(var i=1;i<=5;i++){
-    (function(n){ seq=seq.then(function(){ setTxt("题库加载中 "+n+"/5 …"); return loadPart(n); }); })(i);
-  }
-  seq.then(function(){
+  setTxt("题库加载中…");
+  var jobs=[1,2,3,4,5].map(function(n){ return loadPart(n); });
+  Promise.all(jobs).then(function(){
     window.__Q=[].concat(window.__P1||[],window.__P2||[],window.__P3||[],window.__P4||[],window.__P5||[]);
     if(window.__Q.length<8000){ throw new Error("题库数据不完整"); }
     if(boot) boot.remove();
