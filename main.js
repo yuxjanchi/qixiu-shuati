@@ -75,7 +75,11 @@ function renderHome(){
   const modChips = Object.keys(MOD_COUNTS).map(m =>
     `<button class="chip${filter.mods.includes(m)?" on":""}" data-mod="${esc(m)}" onclick="toggleFilterMod('${esc(m)}')">${m}（${MOD_COUNTS[m]}题）</button>`
   ).join("");
-  const chapGroups = MODULES.map(m => { const chs = MOD_CHAPTERS[m]||{}; return `<div class="chap-group"><div class="chap-group-title">${esc(m)}</div><div class="chips">${Object.keys(chs).map(c=>`<button class="chip${filter.chapters.includes(c)?" on":""}" data-chapter="${esc(c)}" onclick="toggleFilterChapter('${esc(c)}')">${esc(c)}（${chs[c]}题）</button>`).join("")}</div></div>`; }).join("");
+  const totalChap = Object.keys(CHAP_MOD).length;
+  const chapEntry = `<button class="chap-entry" onclick="openChapterPicker()">
+      <div><div class="chap-entry-name">进入章节选择</div><div class="chap-entry-sub">${filter.chapters.length===totalChap ? "默认全选，共36章" : "已选 "+filter.chapters.length+" / 36 章"}</div></div>
+      <div class="chap-entry-arrow">→</div>
+    </button>${filter.chapters.length===totalChap ? "" : `<div class="chips" style="margin-top:10px">${filter.chapters.map(c=>`<button class="chip on" data-chapter="${esc(c)}" onclick="toggleFilterChapter('${esc(c)}')">${esc(c)}（${MOD_CHAPTERS[CHAP_MOD[c]][c]}题）</button>`).join("")}</div>`}`;
   const nWrong = st.wrong;
   document.getElementById("view").innerHTML = `
     <h1 class="view-title">刷题控制台</h1>
@@ -98,7 +102,7 @@ function renderHome(){
       </div>
       <div class="filter-block">
         <div class="filter-title">章节小类筛选（默认全选，共36章）</div>
-        ${chapGroups}
+        ${chapEntry}
       </div>
       <div style="margin-top:14px">
         <button class="btn btn-ghost" onclick="resetFilter()">重置筛选</button>
@@ -133,7 +137,12 @@ function filterState(){
   const c = document.querySelectorAll(".chip[data-chapter].on");
   const types = t.length ? Array.from(t).map(el=>el.dataset.type) : Object.keys(TYPE_COUNTS);
   const mods = m.length ? Array.from(m).map(el=>el.dataset.mod) : Object.keys(MOD_COUNTS);
-  const chapters = c.length ? Array.from(c).map(el=>el.dataset.chapter) : Object.keys(CHAP_MOD);
+  let chapters;
+  if(window._chapSel && window._chapSel.length){
+    chapters = window._chapSel.slice();
+  } else {
+    chapters = c.length ? Array.from(c).map(el=>el.dataset.chapter) : Object.keys(CHAP_MOD);
+  }
   return {types, mods, chapters};
 }
 function matchFilter(q,f){
@@ -159,6 +168,8 @@ function toggleFilterMod(m){
       else c.classList.add("on");
     });
   }
+  const nowOn = Array.from(document.querySelectorAll(".chip[data-chapter].on")).map(el=>el.dataset.chapter);
+  window._chapSel = nowOn.length ? nowOn : null;
   renderHome();
 }
 function toggleFilterChapter(ch){
@@ -176,9 +187,12 @@ function toggleFilterChapter(ch){
   }
   const mel = document.querySelector(`.chip[data-mod="${esc(CHAP_MOD[ch])}"]`);
   if(mel) mel.classList.add("on");
+  const nowOn = Array.from(document.querySelectorAll(".chip[data-chapter].on")).map(el=>el.dataset.chapter);
+  window._chapSel = nowOn.length ? nowOn : null;
   renderHome();
 }
 function resetFilter(){
+  window._chapSel = null;
   document.querySelectorAll(".chip").forEach(c=>c.classList.add("on"));
   renderHome();
 }
@@ -738,7 +752,11 @@ function renderHome(){
   const modChips = Object.keys(MOD_COUNTS).map(m =>
     `<button class="chip${f.mods.includes(m)?" on":""}" data-mod="${esc(m)}" onclick="toggleFilterMod('${esc(m)}')">${m}（${MOD_COUNTS[m]}题）</button>`
   ).join("");
-  const chapGroups = MODULES.map(m => { const chs = MOD_CHAPTERS[m]||{}; return `<div class="chap-group"><div class="chap-group-title">${esc(m)}</div><div class="chips">${Object.keys(chs).map(c=>`<button class="chip${f.chapters.includes(c)?" on":""}" data-chapter="${esc(c)}" onclick="toggleFilterChapter('${esc(c)}')">${esc(c)}（${chs[c]}题）</button>`).join("")}</div></div>`; }).join("");
+  const totalChap = Object.keys(CHAP_MOD).length;
+  const chapEntry = `<button class="chap-entry" onclick="openChapterPicker()">
+      <div><div class="chap-entry-name">进入章节选择</div><div class="chap-entry-sub">${f.chapters.length===totalChap ? "默认全选，共36章" : "已选 "+f.chapters.length+" / 36 章"}</div></div>
+      <div class="chap-entry-arrow">→</div>
+    </button>${f.chapters.length===totalChap ? "" : `<div class="chips" style="margin-top:10px">${f.chapters.map(c=>`<button class="chip on" data-chapter="${esc(c)}" onclick="toggleFilterChapter('${esc(c)}')">${esc(c)}（${MOD_CHAPTERS[CHAP_MOD[c]][c]}题）</button>`).join("")}</div>`}`;
   document.getElementById("view").innerHTML = `
     <div class="hero">
       <div class="h-title">匠考通关宝</div>
@@ -762,7 +780,7 @@ function renderHome(){
       </div>
       <div class="filter-block">
         <div class="filter-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v4M15 2v4M4 8h16M6 8v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/></svg>章节小类筛选（默认全选，共36章）</div>
-        ${chapGroups}
+        ${chapEntry}
       </div>
       <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn btn-ghost" onclick="resetFilter()">重置筛选</button>
@@ -1023,6 +1041,53 @@ function renderExams(){
   document.addEventListener('visibilitychange',function(){cv.style.display=document.hidden?'none':'';});
 })();
 
+
+
+/* ===== 章节选择页逻辑 ===== */
+let pickerSel = [];
+function openChapterPicker(){
+  pickerSel = Array.from(filterState().chapters);
+  renderChapterPicker();
+  document.getElementById("chapter-picker").classList.add("show");
+}
+function closeChapterPicker(){ document.getElementById("chapter-picker").classList.remove("show"); }
+function renderChapterPicker(){
+  const groups = MODULES.map(m=>{
+    const chs = MOD_CHAPTERS[m]||{};
+    return `<div class="picker-group-title">${esc(m)}</div><div class="picker-grid">`+
+      Object.keys(chs).map(c=>{
+        const on = pickerSel.includes(c);
+        return `<button class="ch-card${on?" on":""}" onclick="togglePickerChapter('${esc(c)}')">
+          <div class="ch-name">${esc(c)}</div>
+          <div class="ch-count">${chs[c]} 题</div>
+          <div class="ch-check">✓</div>
+        </button>`;
+      }).join("")+`</div>`;
+  }).join("");
+  document.getElementById("picker-body").innerHTML = groups;
+  const n = pickerSel.length, total = Object.keys(CHAP_MOD).length;
+  document.getElementById("picker-selcount").textContent = `已选 ${n}/${total} 章`;
+}
+function togglePickerChapter(ch){
+  const i = pickerSel.indexOf(ch);
+  if(i>=0) pickerSel.splice(i,1); else pickerSel.push(ch);
+  renderChapterPicker();
+}
+function pickerAll(){ pickerSel = Object.keys(CHAP_MOD).slice(); renderChapterPicker(); }
+function pickerClear(){ pickerSel = []; renderChapterPicker(); }
+function applyChapterPicker(){
+  closeChapterPicker();
+  window._chapSel = pickerSel.length ? pickerSel.slice() : null;
+  MODULES.forEach(m=>{
+    const chs = Object.keys(MOD_CHAPTERS[m]||{});
+    const anyOn = chs.some(c=>pickerSel.includes(c));
+    const mel = document.querySelector(`.chip[data-mod="${esc(m)}"]`);
+    if(mel) mel.classList.toggle("on", anyOn);
+  });
+  renderHome();
+  const f = filterState();
+  toast(f.chapters.length===Object.keys(CHAP_MOD).length ? "已恢复全部章节" : "已选择 "+f.chapters.length+" 个章节，可开始刷题");
+}
 
 /* ---------- 初始化 ---------- */
 (function(){
